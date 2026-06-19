@@ -1,0 +1,54 @@
+name: Publish to npm
+
+# Publishes the `skilldb` CLI/SDK + MCP server to npm via npm Trusted Publishing
+# (OIDC) — no token. This repo (devchad-cmd/skilldb-sdk) is the canonical source
+# and publisher; provenance is generated automatically and points back here.
+#
+# One-time npm setup: on the `skilldb` package → Settings → Trusted Publisher,
+# set a GitHub Actions publisher with
+#   owner/user = devchad-cmd, repository = skilldb-sdk, workflow = publish.yml
+#
+# Triggers: push a tag like `v0.8.2`, or run manually from the Actions tab.
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # required for npm Trusted Publishing (OIDC)
+    steps:
+      - uses: actions/checkout@v4
+
+      # No registry-url: it writes an .npmrc _authToken placeholder that shadows
+      # the OIDC flow. Without it, npm 11.5.1+ uses Trusted Publishing.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install deps
+        run: npm install
+
+      - name: Build
+        run: npm run build
+
+      - name: Guard — version must not already be published
+        run: |
+          NAME=$(node -p "require('./package.json').name")
+          VERSION=$(node -p "require('./package.json').version")
+          if npm view "$NAME@$VERSION" version >/dev/null 2>&1; then
+            echo "::error::$NAME@$VERSION is already on npm. Bump package.json before publishing."
+            exit 1
+          fi
+          echo "Publishing $NAME@$VERSION"
+
+      # Upgrade npm + publish in one step so the OIDC-capable npm (>=11.5.1) runs it.
+      - name: Publish (Trusted Publishing / OIDC — no token)
+        run: |
+          npm install -g npm@latest
+          npm publish --access public
