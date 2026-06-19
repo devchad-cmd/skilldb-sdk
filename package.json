@@ -1,0 +1,61 @@
+{
+  "name": "skilldb",
+  "version": "0.8.0",
+  "description": "SDK and CLI for SkillDB — discover, install, and manage AI agent skills",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "bin": {
+    "skilldb": "./dist/cli.js",
+    "skilldb-mcp": "./dist/mcp.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "skilldb",
+    "ai",
+    "skills",
+    "claude",
+    "cursor",
+    "codex",
+    "agent",
+    "mcp",
+    "model-context-protocol",
+    "mcp-server"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/devchad-cmd/skilldb-sdk.git"
+  },
+  "homepage": "https://github.com/devchad-cmd/skilldb-sdk#readme",
+  "bugs": "https://github.com/devchad-cmd/skilldb-sdk/issues",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "commander": "^13.1.0",
+    "picocolors": "^1.1.1",
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.0",
+    "tsup": "^8.4.0",
+    "typescript": "^5.7.0"
+  }
+}

@@ -1,0 +1,58 @@
+name: skilldb
+displayName: SkillDB — AI Agent Skills Library
+description: |
+  Search, browse, and load 5,600+ expert skills for AI coding agents.
+  Skills are curated markdown instructions covering code review, debugging,
+  security, React patterns, DevOps, and 32 more categories across 377 packs.
+
+  Unlike documentation tools, SkillDB teaches agents HOW to do things well —
+  best practices, anti-patterns, architecture decisions, and expert techniques.
+
+icon: https://skilldb.dev/favicon.ico
+homepage: https://skilldb.dev
+repository: https://github.com/devchad-cmd/skilldb-sdk
+author: SkillDB
+license: MIT
+
+startCommand:
+  type: stdio
+  configSchema:
+    type: object
+    properties:
+      apiKey:
+        type: string
+        description: "SkillDB API key (optional — metadata works without auth, full content needs Pro key)"
+    required: []
+  commandFunction:
+    - npx
+    - skilldb-mcp
+    - ${{ apiKey ? '--api-key' : '' }}
+    - ${{ apiKey || '' }}
+
+tools:
+  - name: skilldb_search
+    description: Search 5,600+ AI agent skills by keyword
+  - name: skilldb_get
+    description: Get full skill content by ID
+  - name: skilldb_list
+    description: Browse skills with category/pack filters
+  - name: skilldb_suggest
+    description: Autocomplete skill name suggestions
+  - name: skilldb_recommend
+    description: Recommend skills based on your tech stack
+
+categories:
+  - development
+  - ai
+  - documentation
+  - productivity
+
+keywords:
+  - skills
+  - ai-agents
+  - code-review
+  - best-practices
+  - claude
+  - cursor
+  - coding
+  - developer-tools
