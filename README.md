@@ -2,23 +2,25 @@
 
 CLI, TypeScript SDK, and **MCP Server** for [SkillDB](https://skilldb.dev) — discover, install, and manage AI agent skills.
 
-5,000+ expert skills across 327 packs for Claude Code, Cursor, Windsurf, and any MCP-compatible AI tool.
+5,900+ expert skills across 428 packs for Claude Code, Cursor, Windsurf, and any MCP-compatible AI tool.
 
-> **Open source for transparency.** This is the full source for the [`skilldb`](https://www.npmjs.com/package/skilldb) npm package — the CLI and MCP server that run **on your machine** and handle **your API key**. It's published to npm via [npm Trusted Publishing](https://docs.npmjs.com/trusted-publishers) (OIDC, with provenance) so the published artifact is verifiably built from this repo. Audit away, and PRs welcome. MIT licensed.
+> **Open source for transparency.** This is the full source for the [`skilldb`](https://www.npmjs.com/package/skilldb) npm package — the CLI and MCP server that run **on your machine** and handle **your API key**. It's published to npm via [Trusted Publishing](https://docs.npmjs.com/trusted-publishers) (OIDC, with provenance), so the published artifact is verifiably built from this repo. Audit away, and PRs welcome. MIT licensed.
 
-## MCP Server (NEW in v0.4.0)
+## MCP Server
 
 Connect SkillDB directly to your AI coding tool via the Model Context Protocol:
 
 ```bash
-# Step 1: Install globally (one time)
+# Step 1 (optional): install globally. You can also skip this — the npx form below works without it.
 npm install -g skilldb
 
 # Step 2: Get your free API key at https://skilldb.dev/api-access
 
 # Step 3: Add to Claude Code (with API key for full content)
-claude mcp add skilldb -- skilldb-mcp --api-key sk_live_YOUR_KEY
+claude mcp add skilldb -- npx -p skilldb skilldb-mcp --api-key sk_live_YOUR_KEY
 ```
+
+> **Note:** `skilldb-mcp` is a binary inside the `skilldb` package, not its own npm package — always invoke it as `npx -p skilldb skilldb-mcp` (not `npx skilldb-mcp`).
 
 > **⚠️ Without an API key**, you can search and browse skills (metadata only).
 > **With a free API key**, you get full skill content — the actual markdown instructions your agent uses.
@@ -29,7 +31,8 @@ claude mcp add skilldb -- skilldb-mcp --api-key sk_live_YOUR_KEY
 {
   "mcpServers": {
     "skilldb": {
-      "command": "skilldb-mcp"
+      "command": "npx",
+      "args": ["-p", "skilldb", "skilldb-mcp"]
     }
   }
 }
@@ -40,8 +43,8 @@ claude mcp add skilldb -- skilldb-mcp --api-key sk_live_YOUR_KEY
 {
   "mcpServers": {
     "skilldb": {
-      "command": "skilldb-mcp",
-      "args": ["--api-key", "sk_live_xxx"]
+      "command": "npx",
+      "args": ["-p", "skilldb", "skilldb-mcp", "--api-key", "sk_live_xxx"]
     }
   }
 }
@@ -51,8 +54,9 @@ Once connected, your AI assistant can search and load skills natively. Just ask:
 - *"Search SkillDB for React performance patterns"*
 - *"Load the code review skill"*
 - *"What skills should I use for this project?"*
+- *"Save this as a private skill"* (Studio plan — see below)
 
-**5 tools exposed:** `skilldb_search`, `skilldb_get`, `skilldb_list`, `skilldb_suggest`, `skilldb_recommend`
+**10 tools exposed:** `skilldb_search`, `skilldb_get`, `skilldb_list`, `skilldb_suggest`, `skilldb_recommend`, `skilldb_purge`, `skilldb_set_key` (set/swap your API key mid-session, no restart), and the private-skill tools `skilldb_my_skills`, `skilldb_create_skill`, `skilldb_update_skill` (Studio plan + write-scoped key).
 
 ## Quick Start (CLI)
 
@@ -153,7 +157,7 @@ skilldb list --pack software-skills
 
 #### `skilldb login`
 
-Save your API key for authenticated access.
+Prompts for your API key and saves it to `~/.skilldbrc` (user-wide) so every project picks it up via the resolution chain in [Authentication](#authentication). The recommended alternative to setting `SKILLDB_API_KEY` by hand.
 
 ```bash
 skilldb login
@@ -172,6 +176,7 @@ skilldb use devops            # Kubernetes, Docker, CI/CD, monitoring
 skilldb use security          # Trust audit, input validation, credentials
 skilldb use data              # SQL, pipelines, analytics, visualization
 skilldb use fullstack         # Frontend + backend combined
+skilldb use mobile            # Mobile / React Native / app development
 skilldb use ai-agent          # Autonomous agent meta-skills
 skilldb use auto              # Auto-detect from your project files
 skilldb use --list            # Show available profiles
@@ -252,6 +257,43 @@ skilldb diff software-skills/code-review
 skilldb diff                  # Diff all installed
 ```
 
+#### `skilldb purge`
+
+Remove cached skills to free disk space.
+
+```bash
+skilldb purge --inactive      # Remove skills not in the active profile
+skilldb purge --all           # Remove ALL cached skills (including active)
+skilldb purge --slim          # Also drop slim summaries
+skilldb purge --dry-run       # Preview what would be removed, delete nothing
+```
+
+### Private Skills (Studio)
+
+Create skills that only **you** (and people you share them with) can read. They surface in your own search results when you're authenticated. Creating/editing requires the **Studio plan** and an API key with **write** scope — mint one at [skilldb.dev/account#api-keys](https://skilldb.dev/account#api-keys).
+
+#### `skilldb push <file.md>`
+
+Create (or update) a private skill from a local Markdown file. The skill name defaults to the filename; the title resolves as `--title` flag → first Markdown `# H1` → filename.
+
+```bash
+skilldb push ./my-react-patterns.md                    # create (pack defaults to "personal")
+skilldb push ./my-react-patterns.md -p team --tags react,perf
+skilldb push ./my-react-patterns.md --update           # update the skill with the same name/pack
+```
+
+Options: `-p, --pack`, `-n, --name`, `-t, --title`, `-d, --description`, `--tags <comma,list>`, `-u, --update`.
+
+#### `skilldb my-skills`
+
+List your private skills (ones you own plus skills shared with you).
+
+```bash
+skilldb my-skills
+```
+
+You can also do all of this from your agent via the MCP tools `skilldb_create_skill` / `skilldb_update_skill` / `skilldb_my_skills`.
+
 ### Sharing & Export
 
 #### `skilldb export`
@@ -304,7 +346,11 @@ The SDK and CLI resolve your API key in order:
 2. `.skilldbrc` in project root (project-specific)
 3. `~/.skilldbrc` in home directory (user-wide)
 
-Browsing and searching works without authentication. Full skill content requires a Pro or Studio key.
+Access tiers:
+
+- **No key** — browse and search (metadata only).
+- **Pro or Studio key** — full skill content (the actual markdown instructions).
+- **Studio key with `write` scope** — private skills (`skilldb push` / `my-skills`, and the `create`/`update` MCP tools). Read-only keys are rejected with a write-scope error. Create a write-scoped key at [skilldb.dev/account#api-keys](https://skilldb.dev/account#api-keys).
 
 ## Profiles
 
@@ -318,6 +364,7 @@ Built-in profiles map to curated skill sets:
 | `security` | trust-audit, input-validation, credentials, hardening | Security review & hardening |
 | `data` | sql, pipelines, analytics, visualization | Data engineering & analysis |
 | `fullstack` | frontend + backend combined | Full-stack applications |
+| `mobile` | mobile patterns, app architecture, UI | Mobile / React Native apps |
 | `ai-agent` | autonomous-agent-skills, task-decomposition, planning | Building AI agents |
 | `auto` | Detected from project | Any project |
 

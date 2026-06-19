@@ -5,20 +5,32 @@
  * to any MCP-compatible AI coding tool (Claude Code, Cursor,
  * Windsurf, VS Code Copilot, and 30+ others).
  *
- * Installation:
- *   claude mcp add skilldb -- npx skilldb-mcp
+ * Installation (skilldb-mcp is a bin inside the `skilldb` package — invoke it
+ * via `npx -p skilldb skilldb-mcp`, not `npx skilldb-mcp`):
+ *   claude mcp add skilldb -- npx -p skilldb skilldb-mcp
  *   # or with API key:
- *   claude mcp add skilldb -- npx skilldb-mcp --api-key sk_live_xxx
+ *   claude mcp add skilldb -- npx -p skilldb skilldb-mcp --api-key sk_live_xxx
  *
  * Cursor (settings.json):
- *   { "mcpServers": { "skilldb": { "command": "npx", "args": ["skilldb-mcp"] } } }
+ *   { "mcpServers": { "skilldb": { "command": "npx", "args": ["-p", "skilldb", "skilldb-mcp"] } } }
  */
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { SkillDBClient } from "./client.js";
 import { resolveApiKey } from "./config.js";
+
+// Read the version from package.json at runtime so it never drifts (same as cli.ts).
+function pkgVersion(): string {
+  try {
+    return JSON.parse(readFileSync(fileURLToPath(new URL("../package.json", import.meta.url)), "utf-8")).version || "0.0.0";
+  } catch {
+    return "0.8.0";
+  }
+}
 
 // Parse CLI args for API key
 const args = process.argv.slice(2);
@@ -38,13 +50,13 @@ if (!hasApiKey) {
     "   You can search and browse skills, but full content requires an API key.\n" +
     "   Get a free key at: https://skilldb.dev/api-access\n" +
     "   Then use: skilldb_set_key to configure it (no restart needed)\n" +
-    "   Or restart with: claude mcp remove skilldb && claude mcp add skilldb -- skilldb-mcp --api-key YOUR_KEY\n\n"
+    "   Or restart with: claude mcp remove skilldb && claude mcp add skilldb -- npx -p skilldb skilldb-mcp --api-key YOUR_KEY\n\n"
   );
 }
 
 const server = new McpServer({
   name: "skilldb",
-  version: "0.7.0",
+  version: pkgVersion(),
 });
 
 // ─── Tool: Set API Key (mid-session) ───
@@ -89,7 +101,7 @@ server.registerTool(
   {
     title: "Search SkillDB Skills",
     description:
-      "Search the SkillDB library of 5,000+ AI agent skills by keyword. Returns skill metadata (name, description, pack, category, line count). Without an API key, only metadata is returned. With a key, full skill content is included. Get a free key at skilldb.dev/api-access.",
+      "Search the SkillDB library of 5,900+ AI agent skills by keyword. Returns skill metadata (name, description, pack, category, line count). Without an API key, only metadata is returned. With a key, full skill content is included. Get a free key at skilldb.dev/api-access.",
     inputSchema: z.object({
       query: z.string().describe("Search query (e.g. 'code review', 'react hooks', 'security')"),
       category: z.string().optional().describe("Filter by category name"),
@@ -448,7 +460,7 @@ server.registerTool(
   },
   async () => {
     if (!apiKey) {
-      return { content: [{ type: "text", text: "API key required for private skills. Set one with: skilldb-mcp --api-key sk_live_xxx" }], isError: true };
+      return { content: [{ type: "text", text: "API key required for private skills. Set one with the skilldb_set_key tool (no restart needed)." }], isError: true };
     }
     try {
       const res = await client.rawRequest("/my-skills", { method: "GET" });
@@ -495,7 +507,7 @@ server.registerTool(
   },
   async ({ name, title, content, pack, tags, description }) => {
     if (!apiKey) {
-      return { content: [{ type: "text", text: "API key required. Set one with: skilldb-mcp --api-key sk_live_xxx" }], isError: true };
+      return { content: [{ type: "text", text: "API key required. Set one with the skilldb_set_key tool (no restart needed)." }], isError: true };
     }
     try {
       const res = await client.rawRequest("/my-skills", {
