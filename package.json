@@ -1,6 +1,7 @@
 {
   "name": "skilldb",
-  "version": "0.8.2",
+  "version": "0.8.3",
+  "mcpName": "io.github.devchad-cmd/skilldb",
   "description": "SDK and CLI for SkillDB — discover, install, and manage AI agent skills",
   "type": "module",
   "main": "./dist/index.cjs",

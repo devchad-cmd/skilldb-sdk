@@ -1,3 +1,5 @@
+<!-- mcp-name: io.github.devchad-cmd/skilldb -->
+
 # skilldb
 
 CLI, TypeScript SDK, and **MCP Server** for [SkillDB](https://skilldb.dev) — discover, install, and manage AI agent skills.
