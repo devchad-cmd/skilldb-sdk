@@ -1,0 +1,29 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.devchad-cmd/skilldb",
+  "title": "SkillDB",
+  "description": "A registry of 5,900+ peer-authored skills — focused markdown expertise files any MCP agent can search and load on demand. Your agent becomes a specialist on demand: one install, it already knows.",
+  "version": "0.8.3",
+  "websiteUrl": "https://skilldb.dev",
+  "repository": {
+    "url": "https://github.com/devchad-cmd/skilldb-sdk",
+    "source": "github"
+  },
+  "packages": [
+    {
+      "registryType": "npm",
+      "registryBaseUrl": "https://registry.npmjs.org",
+      "identifier": "skilldb",
+      "version": "0.8.3",
+      "transport": {
+        "type": "stdio"
+      }
+    }
+  ],
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.skilldb.dev"
+    }
+  ]
+}

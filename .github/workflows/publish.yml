@@ -52,3 +52,24 @@ jobs:
         run: |
           npm install -g npm@latest
           npm publish --access public
+
+      # Publish the server.json to the Official MCP Registry using GitHub Actions
+      # OIDC (no interactive device login). The io.github.devchad-cmd/* namespace
+      # is authorized by this repo's OIDC token. Non-fatal: a registry hiccup must
+      # never fail the npm release (publish manually with `mcp-publisher` if so).
+      - name: Publish to the Official MCP Registry (GitHub OIDC)
+        continue-on-error: true
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "Waiting for npm to propagate skilldb@$VERSION (the registry validates mcpName against it)…"
+          for i in $(seq 1 18); do npm view "skilldb@$VERSION" version >/dev/null 2>&1 && { echo "npm has $VERSION"; break; }; sleep 10; done
+          URL=$(curl -fsSL https://api.github.com/repos/modelcontextprotocol/registry/releases/latest \
+            | jq -r '.assets[] | select(.name|test("linux_amd64.*tar\\.gz$")) | .browser_download_url' | head -1)
+          echo "Downloading mcp-publisher: $URL"
+          curl -fsSL "$URL" -o mcp-publisher.tar.gz
+          tar xzf mcp-publisher.tar.gz
+          chmod +x mcp-publisher
+          ./mcp-publisher login github-oidc
+          ./mcp-publisher publish
+          echo "=== registry search after publish ==="
+          curl -s "https://registry.modelcontextprotocol.io/v0/servers?search=skilldb" | head -c 600 || true
