@@ -4,7 +4,11 @@
 
 CLI, TypeScript SDK, and **MCP Server** for [SkillDB](https://skilldb.dev) — discover, install, and manage AI agent skills.
 
-5,900+ expert skills across 428 packs for Claude Code, Cursor, Windsurf, and any MCP-compatible AI tool.
+5,900+ expert skills across 429 packs for Claude Code, Cursor, Windsurf, VS Code, and any MCP-compatible AI tool.
+
+[![Add SkillDB to Cursor](https://cursor.com/deeplink/mcp-install-dark.svg)](cursor://anysphere.cursor-deeplink/mcp/install?name=skilldb&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyItcCIsInNraWxsZGIiLCJza2lsbGRiLW1jcCJdfQ==)
+[![Install in VS Code](https://img.shields.io/badge/VS_Code-Install_SkillDB-0098FF?logo=visualstudiocode&logoColor=white)](vscode:mcp/install?%7B%22name%22%3A%22skilldb%22%2C%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-p%22%2C%22skilldb%22%2C%22skilldb-mcp%22%5D%7D)
+[![npm](https://img.shields.io/npm/v/skilldb?logo=npm&label=skilldb)](https://www.npmjs.com/package/skilldb)
 
 > **Open source for transparency.** This is the full source for the [`skilldb`](https://www.npmjs.com/package/skilldb) npm package — the CLI and MCP server that run **on your machine** and handle **your API key**. It's published to npm via [Trusted Publishing](https://docs.npmjs.com/trusted-publishers) (OIDC, with provenance), so the published artifact is verifiably built from this repo. Audit away, and PRs welcome. MIT licensed.
 
@@ -51,6 +55,12 @@ claude mcp add skilldb -- npx -p skilldb skilldb-mcp --api-key sk_live_YOUR_KEY
   }
 }
 ```
+
+**VS Code** — one-liner:
+```bash
+code --add-mcp '{"name":"skilldb","command":"npx","args":["-p","skilldb","skilldb-mcp"]}'
+```
+Or add the same server block to `.vscode/mcp.json` (workspace) / user `mcp.json` under `"servers"`.
 
 Once connected, your AI assistant can search and load skills natively. Just ask:
 - *"Search SkillDB for React performance patterns"*
