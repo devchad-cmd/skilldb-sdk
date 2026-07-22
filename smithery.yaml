@@ -23,13 +23,14 @@ startCommand:
         type: string
         description: "SkillDB API key (optional — metadata works without auth, full content needs Pro key)"
     required: []
-  commandFunction:
-    - npx
-    - -p
-    - skilldb
-    - skilldb-mcp
-    - ${{ apiKey ? '--api-key' : '' }}
-    - ${{ apiKey || '' }}
+  # Must be a JavaScript function returning {command, args} (Smithery contract).
+  # The MCP server is the `skilldb-mcp` bin INSIDE the `skilldb` package — plain
+  # `npx skilldb` launches the interactive CLI instead, so `-p` is load-bearing.
+  commandFunction: |-
+    (config) => ({
+      command: 'npx',
+      args: ['-y', '-p', 'skilldb', 'skilldb-mcp', ...(config.apiKey ? ['--api-key', config.apiKey] : [])]
+    })
 
 tools:
   - name: skilldb_search

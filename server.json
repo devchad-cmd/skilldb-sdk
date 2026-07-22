@@ -15,6 +15,30 @@
       "registryBaseUrl": "https://registry.npmjs.org",
       "identifier": "skilldb",
       "version": "0.8.3",
+      "runtimeHint": "npx",
+      "runtimeArguments": [
+        {
+          "type": "named",
+          "name": "-p",
+          "value": "skilldb",
+          "description": "The MCP server is the skilldb-mcp bin inside the skilldb package; plain `npx skilldb` launches the CLI instead.",
+          "isRequired": true
+        },
+        {
+          "type": "positional",
+          "value": "skilldb-mcp",
+          "valueHint": "skilldb-mcp",
+          "isRequired": true
+        }
+      ],
+      "environmentVariables": [
+        {
+          "name": "SKILLDB_API_KEY",
+          "description": "SkillDB API key (optional — search/browse return metadata only without it; full skill content needs a free key from skilldb.dev/api-access).",
+          "isRequired": false,
+          "isSecret": true
+        }
+      ],
       "transport": {
         "type": "stdio"
       }
