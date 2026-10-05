@@ -2,13 +2,20 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.devchad-cmd/skilldb",
   "title": "SkillDB",
-  "description": "A registry of 5,900+ peer-authored skills any MCP agent can search and load on demand.",
-  "version": "0.8.3",
-  "websiteUrl": "https://skilldb.dev",
+  "description": "Search and load AI agent skills. Free metadata; full content requires a Pro or Studio account.",
+  "version": "0.8.4-registry.1",
+  "websiteUrl": "https://skilldb.dev/mcp",
   "repository": {
     "url": "https://github.com/devchad-cmd/skilldb-sdk",
     "source": "github"
   },
+  "icons": [
+    {
+      "src": "https://skilldb.dev/logo/skilldb-logo-square-512.png",
+      "mimeType": "image/png",
+      "sizes": ["512x512"]
+    }
+  ],
   "packages": [
     {
       "registryType": "npm",
@@ -18,23 +25,26 @@
       "runtimeHint": "npx",
       "runtimeArguments": [
         {
-          "type": "named",
-          "name": "-p",
-          "value": "skilldb",
-          "description": "The MCP server is the skilldb-mcp bin inside the skilldb package; plain `npx skilldb` launches the CLI instead.",
-          "isRequired": true
+          "type": "positional",
+          "value": "--yes"
         },
         {
           "type": "positional",
+          "value": "--package",
+          "description": "Makes the following generated skilldb@0.8.3 identifier an npm package selection; the command is skilldb-mcp."
+        }
+      ],
+      "packageArguments": [
+        {
+          "type": "positional",
           "value": "skilldb-mcp",
-          "valueHint": "skilldb-mcp",
-          "isRequired": true
+          "description": "Run the MCP binary from the selected package instead of the interactive SkillDB CLI."
         }
       ],
       "environmentVariables": [
         {
           "name": "SKILLDB_API_KEY",
-          "description": "SkillDB API key (optional — search/browse return metadata only without it; full skill content needs a free key from skilldb.dev/api-access).",
+          "description": "Optional for local metadata search; full skill content requires a Pro or Studio API key. Get a key at skilldb.dev/api-access.",
           "isRequired": false,
           "isSecret": true
         }
@@ -47,7 +57,18 @@
   "remotes": [
     {
       "type": "streamable-http",
-      "url": "https://mcp.skilldb.dev"
+      "url": "https://skilldb.dev/api/mcp"
     }
-  ]
+  ],
+  "_meta": {
+    "io.modelcontextprotocol.registry/publisher-provided": {
+      "dev.skilldb": {
+        "releaseNotes": "Registry metadata repair only; npm and server software remain 0.8.3. Uses the canonical OAuth resource URL, correct npm binary selection, current access copy, and the shared SkillDB logo.",
+        "remoteAuthentication": "OAuth or a SkillDB API key is required for the full remote integration. The separate anonymous SkillDB Catalog only searches public metadata and short previews.",
+        "documentationUrl": "https://skilldb.dev/docs",
+        "privacyPolicyUrl": "https://skilldb.dev/privacy",
+        "supportUrl": "https://skilldb.dev/support"
+      }
+    }
+  }
 }
