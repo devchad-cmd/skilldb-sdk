@@ -20,16 +20,16 @@ Connect SkillDB directly to your AI coding tool via the Model Context Protocol:
 # Step 1 (optional): install globally. You can also skip this — the npx form below works without it.
 npm install -g skilldb
 
-# Step 2: Get your free API key at https://skilldb.dev/api-access
+# Step 2 (optional): Get a Pro or Studio API key for full content at https://skilldb.dev/api-access
 
-# Step 3: Add to Claude Code (with API key for full content)
+# Step 3: Add to Claude Code (omit --api-key for metadata-only access)
 claude mcp add skilldb -- npx -p skilldb skilldb-mcp --api-key sk_live_YOUR_KEY
 ```
 
 > **Note:** `skilldb-mcp` is a binary inside the `skilldb` package, not its own npm package — always invoke it as `npx -p skilldb skilldb-mcp` (not `npx skilldb-mcp`).
 
 > **⚠️ Without an API key**, you can search and browse skills (metadata only).
-> **With a free API key**, you get full skill content — the actual markdown instructions your agent uses.
+> **With a Pro or Studio API key**, you get full skill content — the actual markdown instructions your agent uses.
 > Get your key in 30 seconds at [skilldb.dev/api-access](https://skilldb.dev/api-access).
 
 **Cursor** — add to `.cursor/mcp.json`:
@@ -69,6 +69,11 @@ Once connected, your AI assistant can search and load skills natively. Just ask:
 - *"Save this as a private skill"* (Studio plan — see below)
 
 **10 tools exposed:** `skilldb_search`, `skilldb_get`, `skilldb_list`, `skilldb_suggest`, `skilldb_recommend`, `skilldb_purge`, `skilldb_set_key` (set/swap your API key mid-session, no restart), and the private-skill tools `skilldb_my_skills`, `skilldb_create_skill`, `skilldb_update_skill` (Studio plan + write-scoped key).
+
+### Hosted MCP endpoints
+
+- **Authenticated integration:** `https://skilldb.dev/api/mcp` uses Streamable HTTP with OAuth or a SkillDB API key. Full skill content requires a Pro or Studio account.
+- **Anonymous SkillDB Catalog:** `https://skilldb.dev/api/mcp/catalog` uses Streamable HTTP without a SkillDB account. Its two tools, `skilldb_search` and `skilldb_get_preview`, return public metadata and short previews only. It does not retrieve full skill content, install or execute skills, link accounts, or access private/team libraries.
 
 ## Quick Start (CLI)
 
@@ -342,7 +347,7 @@ for (const skill of results.skills) {
   console.log(skill.slim); // Quick summary
 }
 
-// Get full skill content
+// Get full skill content (requires a configured Pro or Studio API key)
 const skill = await db.get('software-skills/code-review.md');
 console.log(skill.content);
 
